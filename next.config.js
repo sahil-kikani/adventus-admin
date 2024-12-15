@@ -8,6 +8,9 @@ const path = require('path')
 module.exports = {
   trailingSlash: true,
   reactStrictMode: false,
+  images: {
+    domains: ['node-api.pdwap.store']
+  },
   webpack: config => {
     config.resolve.alias = {
       ...config.resolve.alias,

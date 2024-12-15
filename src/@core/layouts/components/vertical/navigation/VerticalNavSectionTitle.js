@@ -30,27 +30,27 @@ const VerticalNavSectionTitle = props => {
   const { navCollapsed } = settings
 
   return (
-    <CanViewNavSectionTitle navTitle={item}>
-      <ListSubheader
-        className='nav-section-title'
-        sx={{
-          ...(navCollapsed && !navHover
-            ? { py: 0.5, px: (collapsedNavWidth - navigationBorderWidth - 22) / 8 }
-            : { px: 7.5 }),
-          '& .MuiTypography-root, & svg': {
-            color: 'text.disabled'
-          }
-        }}
-      >
-        {navCollapsed && !navHover ? (
-          <Icon icon='tabler:separator' />
-        ) : (
-          <Typography noWrap variant='caption' sx={{ textTransform: 'uppercase' }}>
-            <Translations text={item.sectionTitle} />
-          </Typography>
-        )}
-      </ListSubheader>
-    </CanViewNavSectionTitle>
+    // <CanViewNavSectionTitle navTitle={item}>
+    <ListSubheader
+      className='nav-section-title'
+      sx={{
+        ...(navCollapsed && !navHover
+          ? { py: 0.5, px: (collapsedNavWidth - navigationBorderWidth - 22) / 8 }
+          : { px: 7.5 }),
+        '& .MuiTypography-root, & svg': {
+          color: 'text.disabled'
+        }
+      }}
+    >
+      {navCollapsed && !navHover ? (
+        <Icon icon='tabler:separator' />
+      ) : (
+        <Typography noWrap variant='caption' sx={{ textTransform: 'uppercase' }}>
+          <Translations text={item.sectionTitle} />
+        </Typography>
+      )}
+    </ListSubheader>
+    // </CanViewNavSectionTitle>
   )
 }
 

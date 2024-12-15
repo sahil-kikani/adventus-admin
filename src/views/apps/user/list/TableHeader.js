@@ -7,10 +7,11 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+import { CardHeader } from '@mui/material'
 
 const TableHeader = props => {
   // ** Props
-  const { handleFilter, toggle, value } = props
+  const { handleFilter, toggle, value, title, searchTitle } = props
 
   return (
     <Box
@@ -25,21 +26,22 @@ const TableHeader = props => {
         justifyContent: 'space-between'
       }}
     >
-      <Button color='secondary' variant='tonal' startIcon={<Icon icon='tabler:upload' />}>
+      <CardHeader title={title} sx={{ padding: '0px' }} />
+      {/* <Button color='secondary' variant='tonal' startIcon={<Icon icon='tabler:upload' />}>
         Export
-      </Button>
+      </Button> */}
       <Box sx={{ rowGap: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <CustomTextField
           value={value}
           sx={{ mr: 4 }}
-          placeholder='Search User'
+          placeholder={searchTitle}
           onChange={e => handleFilter(e.target.value)}
         />
 
-        <Button onClick={toggle} variant='contained' sx={{ '& svg': { mr: 2 } }}>
+        {/* <Button onClick={toggle} variant='contained' sx={{ '& svg': { mr: 2 } }}>
           <Icon fontSize='1.125rem' icon='tabler:plus' />
           Add New User
-        </Button>
+        </Button> */}
       </Box>
     </Box>
   )

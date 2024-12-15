@@ -78,6 +78,8 @@ const VerticalNavLink = ({
   // ** Hooks
   const router = useRouter()
 
+  console.log('items in nav', item)
+
   // ** Vars
   const { navCollapsed } = settings
   const icon = parent && !item.icon ? themeConfig.navSubItemIcon : item.icon
@@ -95,7 +97,7 @@ const VerticalNavLink = ({
       <ListItem
         disablePadding
         className='nav-link'
-        disabled={item.disabled || false}
+        // disabled={item.disabled || false}
         sx={{ mt: 1, px: '0 !important' }}
       >
         <MenuNavLink

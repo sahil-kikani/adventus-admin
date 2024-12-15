@@ -55,6 +55,7 @@ import 'src/iconify-bundle/icons-bundle-react'
 
 // ** Global css styles
 import '../../styles/globals.css'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -84,7 +85,7 @@ const Guard = ({ children, authGuard, guestGuard }) => {
 // ** Configure JSS & ClassName
 const App = props => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
-
+  console.log('Component', Component)
   // Variables
   const contentHeightFixed = Component.contentHeightFixed ?? false
 
@@ -94,6 +95,17 @@ const App = props => {
   const authGuard = Component.authGuard ?? true
   const guestGuard = Component.guestGuard ?? false
   const aclAbilities = Component.acl ?? defaultACLObj
+
+  console.log('setConfig', setConfig)
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        refetchOnWindowFocus: false
+      }
+    }
+  })
 
   return (
     <Provider store={store}>
@@ -108,17 +120,18 @@ const App = props => {
           <meta name='viewport' content='initial-scale=1, width=device-width' />
         </Head>
 
-        <AuthProvider>
+        {/* <AuthProvider> */}
+        <QueryClientProvider client={queryClient}>
           <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
             <SettingsConsumer>
               {({ settings }) => {
                 return (
                   <ThemeComponent settings={settings}>
-                    <Guard authGuard={authGuard} guestGuard={guestGuard}>
-                      <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard} authGuard={authGuard}>
-                        {getLayout(<Component {...pageProps} />)}
-                      </AclGuard>
-                    </Guard>
+                    {/* <Guard authGuard={authGuard} guestGuard={guestGuard}>
+                        <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard} authGuard={authGuard}> */}
+                    {getLayout(<Component {...pageProps} />)}
+                    {/* </AclGuard> */}
+                    {/* </Guard> */}
                     <ReactHotToast>
                       <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
                     </ReactHotToast>
@@ -127,7 +140,8 @@ const App = props => {
               }}
             </SettingsConsumer>
           </SettingsProvider>
-        </AuthProvider>
+        </QueryClientProvider>
+        {/* </AuthProvider> */}
       </CacheProvider>
     </Provider>
   )

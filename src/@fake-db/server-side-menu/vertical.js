@@ -3,24 +3,14 @@ import mock from 'src/@fake-db/mock'
 
 const navigation = [
   {
-    title: 'Dashboards',
-    icon: 'tabler:smart-home',
-    badgeContent: 'new',
-    badgeColor: 'error',
-    children: [
-      {
-        title: 'Analytics',
-        path: '/dashboards/analytics'
-      },
-      {
-        title: 'CRM',
-        path: '/dashboards/crm'
-      },
-      {
-        title: 'eCommerce',
-        path: '/dashboards/ecommerce'
-      }
-    ]
+    title: 'Email',
+    icon: 'tabler:mail',
+    path: '/apps/email'
+  },
+  {
+    title: 'Chat',
+    icon: 'tabler:messages',
+    path: '/apps/chat'
   },
   {
     sectionTitle: 'Apps & Pages'
@@ -348,7 +338,6 @@ const navigation = [
     icon: 'tabler:brand-tabler'
   },
   {
-    
     title: 'Cards',
     icon: 'tabler:id',
     children: [
@@ -459,7 +448,7 @@ const navigation = [
       {
         title: 'More',
         path: '/components/more'
-      },
+      }
     ]
   },
   {
@@ -520,7 +509,7 @@ const navigation = [
       {
         title: 'Input Mask',
         path: '/forms/form-elements/input-mask'
-      },
+      }
     ]
   },
   {

@@ -54,6 +54,7 @@ const VerticalNavHeader = props => {
   const theme = useTheme()
   const { navCollapsed } = settings
   const menuCollapsedStyles = navCollapsed && !navHover ? { opacity: 0 } : { opacity: 1 }
+  console.log(hidden, props.navMenuBranding, 'hidden')
 
   const menuHeaderPaddingLeft = () => {
     if (navCollapsed && !navHover) {
