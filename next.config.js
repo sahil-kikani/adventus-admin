@@ -9,7 +9,7 @@ module.exports = {
   trailingSlash: true,
   reactStrictMode: false,
   images: {
-    domains: ['node-api.pdwap.store']
+    domains: ['node-api.pdwap.store', 'adventus-admin-api.pdwap.store']
   },
   webpack: config => {
     config.resolve.alias = {
