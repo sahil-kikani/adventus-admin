@@ -5,9 +5,9 @@ import { useState, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import Axios from 'src/Axios'
-import CategoryColumns from '../components/categoryComponents/categoryColumns'
 import TableHeader from 'src/views/apps/user/list/TableHeader'
-import AddCategory from '../components/categoryComponents/addCategory'
+import ReviewColumn from '../components/reviewComponents/reviewColumns'
+import AddReview from '../components/reviewComponents/addReview'
 
 const Category = () => {
   const [value, setValue] = useState('')
@@ -31,12 +31,14 @@ const Category = () => {
       toggleAddCategoryDrawer()
     } else if (id) {
       try {
-        const response = await Axios.get(`backend/category/${id}`)
+        const response = await Axios.get(`backend/review/${id}`)
         const categoryData = response?.data?.data
         if (categoryData) {
           setDrawerData({
             name: categoryData.name,
-            image: categoryData.image,
+            designation: categoryData.designation,
+            reviews: categoryData.reviews,
+            stars: categoryData.stars,
             id: id
           })
           setDrawerMode(type)
@@ -50,9 +52,15 @@ const Category = () => {
 
   const { data, refetch } = useQuery({
     queryKey: ['get-category'],
-    queryFn: () => Axios.get(`backend/category?q`),
+    queryFn: () => Axios.get(`backend/review?q`),
     select: d => d?.data?.data
   })
+
+  //   "name": "JOhn",
+  //   "description": "Associates",
+  //   "photo": "https://adventus-admin-api.pdwap.store/uploads/team/1733123682613-4wk95.png",
+  //   "createdAt": "2024-11-29T16:31:40.520Z",
+  //   "updatedAt": "2024-12-02T07:14:42.613Z",
 
   const mappedData = data?.map(row => ({ ...row, id: row._id })) || []
 
@@ -72,7 +80,7 @@ const Category = () => {
             autoHeight
             rowHeight={62}
             rows={mappedData || []}
-            columns={CategoryColumns(refetch, handleCRUD)}
+            columns={ReviewColumn(refetch, handleCRUD)}
             disableRowSelectionOnClick
             disableColumnFilter
             disableColumnSelector
@@ -86,7 +94,7 @@ const Category = () => {
         </Card>
       </Grid>
 
-      <AddCategory
+      <AddReview
         open={addUserOpen}
         refetch={refetch}
         toggle={toggleAddCategoryDrawer}

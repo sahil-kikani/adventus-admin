@@ -1,18 +1,15 @@
 import * as yup from 'yup'
-import Drawer from '@mui/material/Drawer'
-import Button from '@mui/material/Button'
-import { styled } from '@mui/material/styles'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
-import CustomTextField from 'src/@core/components/mui/text-field'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { useForm, Controller } from 'react-hook-form'
-import Icon from 'src/@core/components/icon'
+import { Box } from '@mui/system'
+import toast from 'react-hot-toast'
 import { useEffect, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
+import { Button, Drawer, Typography } from '@mui/material'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { Controller, useForm } from 'react-hook-form'
+import Icon from 'src/@core/components/icon'
+
 import Axios from 'src/Axios'
-import toast from 'react-hot-toast'
+import CustomTextField from 'src/@core/components/mui/text-field'
 
 const schema = yup.object().shape({
   name: yup.string().required('Category name is required'),
@@ -20,8 +17,7 @@ const schema = yup.object().shape({
 })
 
 const AddCategory = props => {
-  const { refetch, open, toggle, data, mode } = props // Receive props: data and mode
-  console.log('data', data)
+  const { refetch, open, toggle, data, mode } = props
   const [preview, setPreview] = useState(null)
 
   const {
@@ -38,14 +34,13 @@ const AddCategory = props => {
     resolver: yupResolver(schema)
   })
 
-  // Populate fields for Edit or View modes
   useEffect(() => {
     if (data && (mode === 'edit' || mode === 'view')) {
       setValue('name', data.name || '')
       setValue('image', data.image || '')
       setPreview(data.image || '')
     } else {
-      reset() // Clear fields for Add mode
+      reset()
       setPreview(null)
     }
   }, [data, mode, setValue, reset])
@@ -75,13 +70,11 @@ const AddCategory = props => {
   })
 
   const onSubmit = formData => {
-    console.log('Submitted Data:', formData)
     if (mode === 'edit') {
       editCategory(formData)
     } else {
       addCategory(formData)
     }
-    // Submit handler here
   }
 
   const handleImageUpload = e => {
@@ -103,7 +96,6 @@ const AddCategory = props => {
           {mode === 'view' ? 'View Category' : mode === 'edit' ? 'Edit Category' : 'Add Category'}
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Category Name */}
           <Controller
             name='name'
             control={control}
@@ -120,8 +112,6 @@ const AddCategory = props => {
             )}
           />
 
-          {/* Image Upload */}
-          {/* Dropzone with Preview */}
           <Box
             sx={{
               mt: 4,
@@ -129,6 +119,7 @@ const AddCategory = props => {
               border: '2px dashed #ccc',
               borderRadius: '8px',
               p: 4,
+              minHeight: '200px',
               textAlign: 'center',
               position: 'relative',
               cursor: mode === 'view' ? 'not-allowed' : 'pointer',
@@ -149,8 +140,11 @@ const AddCategory = props => {
                 cursor: mode === 'view' ? 'not-allowed' : 'pointer'
               }}
             />
+
             {!preview ? (
-              <></>
+              <>
+                <Icon icon='tabler:file-upload' />
+              </>
             ) : (
               <img
                 src={preview}
@@ -164,6 +158,12 @@ const AddCategory = props => {
                 }}
               />
             )}
+            {errors?.image && (
+              <Typography variant='body2' color='error'>
+                {errors?.image?.message}
+              </Typography>
+            )}
+
             <Typography variant='body2' sx={{ color: '#777' }}>
               {mode === 'view' ? 'No file upload allowed in view mode' : 'Drop files here or click to upload.'}
             </Typography>
@@ -172,7 +172,6 @@ const AddCategory = props => {
             </Typography>
           </Box>
 
-          {/* Action Buttons */}
           {mode !== 'view' && (
             <Box display='flex' gap={2}>
               <Button type='submit' variant='contained' color='primary'>

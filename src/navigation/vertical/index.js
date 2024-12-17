@@ -31,17 +31,17 @@ const navigation = () => {
     {
       title: 'Review',
       icon: 'tabler:messages',
-      path: '/apps/chat'
+      path: '/review'
     },
     {
       title: 'Team',
       icon: 'tabler:calendar',
-      path: '/apps/calendar'
+      path: '/teams'
     },
     {
       title: 'Properties',
       icon: 'tabler:calendar',
-      path: '/apps/calendar'
+      path: '/properties'
     },
     {
       sectionTitle: 'Apps & Pages'
@@ -52,27 +52,27 @@ const navigation = () => {
       children: [
         {
           title: 'About Us',
-          path: '/ui/cards/basic'
+          path: '/'
         },
         {
           title: 'Hoe Is Works',
-          path: '/ui/cards/advanced'
+          path: '/'
         },
         {
           title: 'About Counter',
-          path: '/ui/cards/statistics'
+          path: '/'
         },
         {
           title: 'Contact Us',
-          path: '/ui/cards/widgets'
+          path: '/'
         },
         {
           title: 'Company Settings',
-          path: '/ui/cards/actions'
+          path: '/'
         },
         {
           title: 'Banner',
-          path: '/ui/cards/actions'
+          path: '/'
         }
       ]
     }

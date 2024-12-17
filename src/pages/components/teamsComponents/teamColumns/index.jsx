@@ -7,17 +7,16 @@ import { IconButton, Menu, MenuItem, Typography } from '@mui/material'
 import Axios from 'src/Axios'
 import Icon from 'src/@core/components/icon'
 import Image from 'next/image'
-import Link from 'next/link'
 
 const RowOptions = ({ id, refetch, handleCRUD }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const rowOptionsOpen = Boolean(anchorEl)
 
   const { mutate: deleteCustomer } = useMutation({
-    mutationFn: id => Axios.delete(`backend/category/${id}`),
+    mutationFn: id => Axios.delete(`backend/team/${id}`),
     onSuccess: () => {
       setAnchorEl(null)
-      toast.success('Category deleted successfully')
+      toast.success('Team deleted successfully')
       refetch()
     },
     onError: err => {
@@ -75,7 +74,7 @@ const RowOptions = ({ id, refetch, handleCRUD }) => {
   )
 }
 
-export default function CategoryColumns(refetch, handleCRUD) {
+export default function TeamsColumn(refetch, handleCRUD) {
   return [
     {
       flex: 0.15,
@@ -95,16 +94,31 @@ export default function CategoryColumns(refetch, handleCRUD) {
       flex: 0.15,
       minWidth: 120,
       sortable: false,
+      headerName: 'DESIGNATION',
+      field: 'designation',
+      renderCell: ({ row }) => {
+        return (
+          <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
+            {row.designation || '-'}
+          </Typography>
+        )
+      }
+    },
+    {
+      flex: 0.15,
+      minWidth: 120,
+      sortable: false,
       headerName: 'IMAGE',
       field: 'image',
       renderCell: ({ row }) => {
         return (
           <div>
-            <Image src={row?.image} height={80} width={80} />
+            <Image src={row?.photo} height={80} width={80} />
           </div>
         )
       }
     },
+
     {
       flex: 0.1,
       minWidth: 100,

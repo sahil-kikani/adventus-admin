@@ -1,6 +1,6 @@
 // ** Next Imports
 import Head from 'next/head'
-import { Router } from 'next/router'
+import { Router, useRouter } from 'next/router'
 
 // ** Store Imports
 import { store } from 'src/store'
@@ -56,6 +56,7 @@ import 'src/iconify-bundle/icons-bundle-react'
 // ** Global css styles
 import '../../styles/globals.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useEffect } from 'react'
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -85,7 +86,7 @@ const Guard = ({ children, authGuard, guestGuard }) => {
 // ** Configure JSS & ClassName
 const App = props => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
-  console.log('Component', Component)
+  const router = useRouter()
   // Variables
   const contentHeightFixed = Component.contentHeightFixed ?? false
 
@@ -97,6 +98,15 @@ const App = props => {
   const aclAbilities = Component.acl ?? defaultACLObj
 
   console.log('setConfig', setConfig)
+
+  useEffect(() => {
+    if (window !== 'undefined') {
+      const token = localStorage.getItem('accessToken')
+      if (!token && router?.pathname !== '/login') {
+        router.push('/login')
+      } else return null
+    }
+  }, [])
 
   const queryClient = new QueryClient({
     defaultOptions: {
