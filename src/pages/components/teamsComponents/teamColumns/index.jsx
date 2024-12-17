@@ -94,12 +94,12 @@ export default function TeamsColumn(refetch, handleCRUD) {
       flex: 0.15,
       minWidth: 120,
       sortable: false,
-      headerName: 'DESIGNATION',
-      field: 'designation',
+      headerName: 'DESCRIPTION',
+      field: 'description',
       renderCell: ({ row }) => {
         return (
           <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-            {row.designation || '-'}
+            {row.description || '-'}
           </Typography>
         )
       }

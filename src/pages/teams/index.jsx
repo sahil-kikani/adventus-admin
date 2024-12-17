@@ -1,14 +1,13 @@
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import { DataGrid } from '@mui/x-data-grid'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import Axios from 'src/Axios'
 import TableHeader from 'src/views/apps/user/list/TableHeader'
-import ReviewColumn from '../components/reviewComponents/reviewColumns'
-import AddReview from '../components/reviewComponents/addReview'
 import TeamsColumn from '../components/teamsComponents/teamColumns'
+import AddTeam from '../components/teamsComponents/addTeam'
 
 const Teams = () => {
   const [value, setValue] = useState('')
@@ -17,8 +16,15 @@ const Teams = () => {
   const [drawerData, setDrawerData] = useState(null)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
+  const debounceTimeout = useRef(null)
+
   const handleFilter = useCallback(val => {
-    setValue(val)
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+    debounceTimeout.current = setTimeout(() => {
+      setValue(val)
+    }, 1000)
   }, [])
 
   const toggleAddCategoryDrawer = () => {
@@ -37,7 +43,7 @@ const Teams = () => {
         if (categoryData) {
           setDrawerData({
             name: categoryData.name,
-            designation: categoryData.designation,
+            description: categoryData.description,
             photo: categoryData.photo,
             id: id
           })
@@ -45,22 +51,16 @@ const Teams = () => {
           toggleAddCategoryDrawer()
         }
       } catch (error) {
-        console.error('Error fetching category:', error)
+        console.error('Error fetching team:', error)
       }
     }
   }
 
   const { data, refetch } = useQuery({
-    queryKey: ['get-team'],
-    queryFn: () => Axios.get(`backend/team?q`),
+    queryKey: ['get-team', value],
+    queryFn: () => Axios.get(value === '' ? `backend/team?q` : `backend/team?search=${value}`),
     select: d => d?.data?.data
   })
-
-  //   "name": "JOhn",
-  //   "description": "Associates",
-  //   "photo": "https://adventus-admin-api.pdwap.store/uploads/team/1733123682613-4wk95.png",
-  //   "createdAt": "2024-11-29T16:31:40.520Z",
-  //   "updatedAt": "2024-12-02T07:14:42.613Z",
 
   const mappedData = data?.map(row => ({ ...row, id: row._id })) || []
 
@@ -70,11 +70,12 @@ const Teams = () => {
         <Card>
           <TableHeader
             value={value}
-            addTitle={'Add new Category'}
+            handleCRUD={handleCRUD}
+            addTitle={'Add new Team'}
             toggle={toggleAddCategoryDrawer}
             handleFilter={handleFilter}
-            title={'Category List'}
-            searchTitle={'Search Category'}
+            title={'Team List'}
+            searchTitle={'Search Team'}
           />
           <DataGrid
             autoHeight
@@ -94,7 +95,7 @@ const Teams = () => {
         </Card>
       </Grid>
 
-      <AddReview
+      <AddTeam
         open={addUserOpen}
         refetch={refetch}
         toggle={toggleAddCategoryDrawer}

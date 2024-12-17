@@ -1,12 +1,12 @@
 import React from 'react'
+import Image from 'next/image'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { useMutation } from '@tanstack/react-query'
 import { IconButton, Menu, MenuItem, Typography } from '@mui/material'
 
 import Axios from 'src/Axios'
 import Icon from 'src/@core/components/icon'
-import Image from 'next/image'
+import { useMutation } from '@tanstack/react-query'
 
 const RowOptions = ({ id, refetch, handleCRUD }) => {
   const [anchorEl, setAnchorEl] = useState(null)

@@ -14,11 +14,12 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 import UseBgColor from 'src/@core/hooks/useBgColor'
 
 const schema = yup.object().shape({
-  name: yup.string().required('Category name is required'),
-  image: yup.string().required('Image is required')
+  name: yup.string().required(' Name is required'),
+  description: yup.string().required('Description name is required'),
+  photo: yup.string().required('Image is required')
 })
 
-const AddCategory = props => {
+const AddTeam = props => {
   const { refetch, open, toggle, data, mode } = props
   const [preview, setPreview] = useState(null)
   const bgColors = UseBgColor()
@@ -30,11 +31,13 @@ const AddCategory = props => {
     handleSubmit,
     setValue,
     clearErrors,
+    setError,
     formState: { errors }
   } = useForm({
     defaultValues: {
       name: '',
-      image: ''
+      description: '',
+      photo: ''
     },
     resolver: yupResolver(schema)
   })
@@ -42,18 +45,19 @@ const AddCategory = props => {
   useEffect(() => {
     if (data && (mode === 'edit' || mode === 'view')) {
       setValue('name', data.name || '')
-      setValue('image', data.image || '')
-      setPreview(data.image || '')
+      setValue('photo', data.photo || '')
+      setValue('description', data.description || '')
+      setPreview(data.photo || '')
     } else {
       reset()
       setPreview(null)
     }
   }, [data, mode, setValue, reset])
 
-  const { mutate: addCategory } = useMutation({
-    mutationFn: data => Axios.post('backend/category', data),
+  const { mutate: addTeam } = useMutation({
+    mutationFn: data => Axios.post('backend/team', data),
     onSuccess: () => {
-      toast.success('Category add successfully')
+      toast.success('team add successfully')
       refetch()
       reset()
       handleToggle()
@@ -63,10 +67,10 @@ const AddCategory = props => {
     }
   })
 
-  const { mutate: editCategory } = useMutation({
-    mutationFn: d => Axios.put(`backend/category/${data.id}`, d),
+  const { mutate: editTeam } = useMutation({
+    mutationFn: d => Axios.put(`backend/team/${data.id}`, d),
     onSuccess: () => {
-      toast.success('Category updated successfully')
+      toast.success('team updated successfully')
       refetch()
       reset()
       handleToggle()
@@ -78,9 +82,16 @@ const AddCategory = props => {
 
   const onSubmit = formData => {
     if (mode === 'edit') {
-      editCategory(formData)
+      let newData
+      newData = { ...formData }
+      if (formData?.photo === data?.photo) {
+        delete newData.photo
+      } else {
+        newData = formData
+      }
+      editTeam(newData)
     } else {
-      addCategory(formData)
+      addTeam(formData)
     }
   }
 
@@ -90,7 +101,8 @@ const AddCategory = props => {
       const reader = new FileReader()
       reader.onloadend = () => {
         setPreview(reader.result)
-        setValue('image', reader.result)
+        setValue('photo', reader.result)
+        setError('photo', '')
       }
       reader.readAsDataURL(file)
     }
@@ -99,12 +111,13 @@ const AddCategory = props => {
   function handleToggle() {
     clearErrors()
     toggle()
+    reset()
   }
 
   return (
     <Drawer open={open} anchor='right' onClose={handleToggle} sx={{ '& .MuiDrawer-paper': { width: '400px' } }}>
       <Typography variant='h5' p={2} mb={2} sx={{ backgroundColor: bgColors.primaryLight.backgroundColor }}>
-        {mode === 'view' ? 'View Category' : mode === 'edit' ? 'Edit Category' : 'Add Category'}
+        {mode === 'view' ? 'View Team' : mode === 'edit' ? 'Edit Team' : 'Add Team'}
       </Typography>
       <Box p={4}>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -114,11 +127,27 @@ const AddCategory = props => {
             render={({ field }) => (
               <CustomTextField
                 fullWidth
-                placeholder='Enter Category Name'
+                placeholder='Name'
                 {...field}
                 disabled={mode === 'view'}
                 error={!!errors.name}
                 helperText={errors.name?.message}
+              />
+            )}
+          />
+
+          <Controller
+            name='description'
+            control={control}
+            render={({ field }) => (
+              <CustomTextField
+                fullWidth
+                style={{ marginTop: '8px' }}
+                placeholder='Enter Description'
+                {...field}
+                disabled={mode === 'view'}
+                error={!!errors.description}
+                helperText={errors.description?.message}
               />
             )}
           />
@@ -170,9 +199,9 @@ const AddCategory = props => {
                 }}
               />
             )}
-            {errors?.image && (
+            {errors?.photo && (
               <Typography variant='body2' color='error'>
-                {errors?.image?.message}
+                {errors?.photo?.message}
               </Typography>
             )}
 
@@ -200,4 +229,4 @@ const AddCategory = props => {
   )
 }
 
-export default AddCategory
+export default AddTeam

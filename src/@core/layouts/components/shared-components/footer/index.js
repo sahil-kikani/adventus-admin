@@ -63,7 +63,7 @@ const Footer = props => {
           })
         }}
       >
-        {userFooterContent ? userFooterContent(props) : <FooterContent />}
+        {/* {userFooterContent ? userFooterContent(props) : <FooterContent />} */}
       </Box>
     </Box>
   )

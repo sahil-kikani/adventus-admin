@@ -6,7 +6,7 @@ import { CardHeader } from '@mui/material'
 import Link from 'next/link'
 
 const TableHeader = props => {
-  const { handleFilter, value, title, searchTitle, addTitle, addLink, toggle } = props
+  const { handleFilter, value, title, searchTitle, addTitle, addLink, toggle, handleCRUD } = props
 
   return (
     <Box
@@ -24,7 +24,7 @@ const TableHeader = props => {
       <CardHeader title={title} sx={{ padding: '0px' }} />
       <Box sx={{ rowGap: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <CustomTextField
-          value={value}
+          // value={value}
           sx={{ mr: 4 }}
           placeholder={searchTitle}
           onChange={e => handleFilter(e.target.value)}
@@ -40,7 +40,7 @@ const TableHeader = props => {
         )}
 
         {toggle && (
-          <Button onClick={toggle} variant='contained' sx={{ '& svg': { mr: 2 } }}>
+          <Button onClick={() => handleCRUD('add', null)} variant='contained' sx={{ '& svg': { mr: 2 } }}>
             <Icon fontSize='1.125rem' icon='tabler:plus' />
             {addTitle}
           </Button>

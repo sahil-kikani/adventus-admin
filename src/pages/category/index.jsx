@@ -1,7 +1,7 @@
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import { DataGrid } from '@mui/x-data-grid'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import Axios from 'src/Axios'
@@ -16,8 +16,15 @@ const Category = () => {
   const [drawerData, setDrawerData] = useState(null)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
+  const debounceTimeout = useRef(null)
+
   const handleFilter = useCallback(val => {
-    setValue(val)
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+    debounceTimeout.current = setTimeout(() => {
+      setValue(val)
+    }, 1000)
   }, [])
 
   const toggleAddCategoryDrawer = () => {
@@ -27,8 +34,8 @@ const Category = () => {
   const handleCRUD = async (type, id = null) => {
     if (type === 'add') {
       setDrawerMode('add')
-      setDrawerData(null)
       toggleAddCategoryDrawer()
+      setDrawerData(null)
     } else if (id) {
       try {
         const response = await Axios.get(`backend/category/${id}`)
@@ -49,8 +56,8 @@ const Category = () => {
   }
 
   const { data, refetch } = useQuery({
-    queryKey: ['get-category'],
-    queryFn: () => Axios.get(`backend/category?q`),
+    queryKey: ['get-category', value],
+    queryFn: () => Axios.get(value === '' ? `backend/category?q` : `backend/category?search=${value}`),
     select: d => d?.data?.data
   })
 
@@ -62,6 +69,7 @@ const Category = () => {
         <Card>
           <TableHeader
             value={value}
+            handleCRUD={handleCRUD}
             addTitle={'Add new Category'}
             toggle={toggleAddCategoryDrawer}
             handleFilter={handleFilter}

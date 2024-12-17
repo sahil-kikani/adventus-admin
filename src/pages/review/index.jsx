@@ -1,7 +1,7 @@
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import { DataGrid } from '@mui/x-data-grid'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import Axios from 'src/Axios'
@@ -16,8 +16,15 @@ const Category = () => {
   const [drawerData, setDrawerData] = useState(null)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
+  const debounceTimeout = useRef(null)
+
   const handleFilter = useCallback(val => {
-    setValue(val)
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+    debounceTimeout.current = setTimeout(() => {
+      setValue(val)
+    }, 1000)
   }, [])
 
   const toggleAddCategoryDrawer = () => {
@@ -45,22 +52,16 @@ const Category = () => {
           toggleAddCategoryDrawer()
         }
       } catch (error) {
-        console.error('Error fetching category:', error)
+        console.error('Error fetching review:', error)
       }
     }
   }
 
   const { data, refetch } = useQuery({
-    queryKey: ['get-category'],
-    queryFn: () => Axios.get(`backend/review?q`),
+    queryKey: ['get-category', value],
+    queryFn: () => Axios.get(value === '' ? `backend/review?q` : `backend/review?search=${value}`),
     select: d => d?.data?.data
   })
-
-  //   "name": "JOhn",
-  //   "description": "Associates",
-  //   "photo": "https://adventus-admin-api.pdwap.store/uploads/team/1733123682613-4wk95.png",
-  //   "createdAt": "2024-11-29T16:31:40.520Z",
-  //   "updatedAt": "2024-12-02T07:14:42.613Z",
 
   const mappedData = data?.map(row => ({ ...row, id: row._id })) || []
 
@@ -70,11 +71,12 @@ const Category = () => {
         <Card>
           <TableHeader
             value={value}
-            addTitle={'Add new Category'}
+            handleCRUD={handleCRUD}
+            addTitle={'Add new Review'}
             toggle={toggleAddCategoryDrawer}
             handleFilter={handleFilter}
-            title={'Category List'}
-            searchTitle={'Search Category'}
+            title={'Review List'}
+            searchTitle={'Search Review'}
           />
           <DataGrid
             autoHeight
