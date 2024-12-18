@@ -100,48 +100,48 @@ export default function PropertyColumn(refetch, handleCRUD) {
         )
       }
     },
-    {
-      flex: 0.15,
-      minWidth: 120,
-      sortable: false,
-      headerName: 'CATEGORY',
-      field: 'category',
-      renderCell: ({ row }) => {
-        return (
-          <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-            {row?.category || '-'}
-          </Typography>
-        )
-      }
-    },
-    {
-      flex: 0.15,
-      minWidth: 120,
-      sortable: false,
-      headerName: 'NAME',
-      field: 'reviews',
-      renderCell: ({ row }) => {
-        return (
-          <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-            {row.reviews || '-'}
-          </Typography>
-        )
-      }
-    },
-    {
-      flex: 0.15,
-      minWidth: 120,
-      sortable: false,
-      headerName: 'STARS',
-      field: 'stars',
-      renderCell: ({ row }) => {
-        return (
-          <div>
-            {[...Array(5)].map((_, index) => (index < row.stars ? <Star key={index} /> : <StarBorder key={index} />))}
-          </div>
-        )
-      }
-    },
+    // {
+    //   flex: 0.15,
+    //   minWidth: 120,
+    //   sortable: false,
+    //   headerName: 'CATEGORY',
+    //   field: 'name',
+    //   renderCell: ({ row }) => {
+    //     return (
+    //       <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
+    //         {row?.name || '-'}
+    //       </Typography>
+    //     )
+    //   }
+    // },
+    // {
+    //   flex: 0.15,
+    //   minWidth: 120,
+    //   sortable: false,
+    //   headerName: 'NAME',
+    //   field: 'reviews',
+    //   renderCell: ({ row }) => {
+    //     return (
+    //       <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
+    //         {row.reviews || '-'}
+    //       </Typography>
+    //     )
+    //   }
+    // },
+    // {
+    //   flex: 0.15,
+    //   minWidth: 120,
+    //   sortable: false,
+    //   headerName: 'STARS',
+    //   field: 'stars',
+    //   renderCell: ({ row }) => {
+    //     return (
+    //       <div>
+    //         {[...Array(5)].map((_, index) => (index < row.stars ? <Star key={index} /> : <StarBorder key={index} />))}
+    //       </div>
+    //     )
+    //   }
+    // },
 
     {
       flex: 0.1,

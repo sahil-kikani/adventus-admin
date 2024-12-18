@@ -39,7 +39,7 @@ const TableHeader = props => {
           </Link>
         )}
 
-        {toggle && (
+        {toggle && !addLink && (
           <Button onClick={() => handleCRUD('add', null)} variant='contained' sx={{ '& svg': { mr: 2 } }}>
             <Icon fontSize='1.125rem' icon='tabler:plus' />
             {addTitle}

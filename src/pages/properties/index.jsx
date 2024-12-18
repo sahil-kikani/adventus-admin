@@ -74,6 +74,7 @@ const Category = () => {
             addTitle={'Add new Property'}
             toggle={toggleAddCategoryDrawer}
             handleFilter={handleFilter}
+            addLink={'/properties/add'}
             title={'Property List'}
             searchTitle={'Search Property'}
           />

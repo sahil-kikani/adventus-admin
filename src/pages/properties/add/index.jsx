@@ -1,5 +1,5 @@
 import React from 'react'
-import AddProperty from 'src/pages/components/propertyComponents/addEditPropertyColumns'
+import AddProperty from 'src/pages/components/propertyComponents/addEditProperty'
 
 function AddPropertyPage() {
   return <AddProperty />
