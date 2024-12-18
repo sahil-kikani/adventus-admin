@@ -82,13 +82,8 @@ const AddTeam = props => {
 
   const onSubmit = formData => {
     if (mode === 'edit') {
-      let newData
-      newData = { ...formData }
-      if (formData?.photo === data?.photo) {
-        delete newData.photo
-      } else {
-        newData = formData
-      }
+      const newData =
+        data?.image === formData.image ? { name: formData?.name, description: formData?.description } : formData
       editTeam(newData)
     } else {
       addTeam(formData)

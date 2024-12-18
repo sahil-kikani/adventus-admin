@@ -78,7 +78,8 @@ const AddCategory = props => {
 
   const onSubmit = formData => {
     if (mode === 'edit') {
-      editCategory(formData)
+      const newData = data?.image === formData.image ? { name: formData?.name } : formData
+      editCategory(newData)
     } else {
       addCategory(formData)
     }
