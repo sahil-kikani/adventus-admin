@@ -1,16 +1,5 @@
-import {
-  Box,
-  Button,
-  Drawer,
-  Typography,
-  Select,
-  MenuItem,
-  InputLabel,
-  IconButton,
-  Grid,
-  TextField
-} from '@mui/material'
-import { GoogleMap, useJsApiLoader, Marker, Autocomplete, LoadScript } from '@react-google-maps/api'
+import { Box, Button, Typography, Select, MenuItem, InputLabel, IconButton, Grid, TextField } from '@mui/material'
+import { GoogleMap, Marker, Autocomplete, LoadScript } from '@react-google-maps/api'
 import React, { useState, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -22,30 +11,22 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 import UseBgColor from 'src/@core/hooks/useBgColor'
 import { Remove } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
+// import { useRouter } from 'next/router'
 
 const GOOGLE_MAPS_API_KEY = 'AIzaSyAyp3zTF3CykyPGiQv5FzY3-kKWZnYbq08 '
 
 const schema = yup.object().shape({
   name: yup.string().required('Property name is required'),
   price: yup.number().positive().required('Price is required'),
-  monthlyPrice: yup.number().positive().required('Monthly price is required'),
-  area: yup.number().positive().required('Area is required'),
-  bedrooms: yup.number().positive().integer().required('Bedrooms is required'),
-  bathrooms: yup.number().positive().integer().required('Bathrooms is required'),
+  monthly_price: yup.number().positive().required('Monthly price is required'),
+  area: yup.string().required('Area is required'),
+  beds: yup.number().positive().integer().required('Bedrooms is required'),
+  baths: yup.number().positive().integer().required('Bathrooms is required'),
   category: yup.string().required('Category is required'),
-  type: yup.string().required('Property type is required')
+  for_type: yup.string().required('Property type is required')
 })
 
-const AddProperty = ({ refetch, open, toggle, data, mode }) => {
-  // const { isLoaded } = useJsApiLoader({
-  //   id: 'google-map-script',
-  //   googleMapsApiKey: GOOGLE_MAPS_API_KEY
-  // })
-
-  // const { isLoaded: placeLoader } = useJsApiLoader({
-  //   libraries: ['places'],
-  //   googleMapsApiKey: GOOGLE_MAPS_API_KEY
-  // })
+const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
   const [center, setCenter] = useState({ lat: 23.0225, lng: 72.5714 })
   const [marker, setMarker] = useState({ lat: 23.0225, lng: 72.5714 })
   const bgColors = UseBgColor()
@@ -65,37 +46,47 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
       name: '',
       location: '',
       price: null,
-      monthlyPrice: null,
+      monthly_price: null,
       area: null,
-      bedrooms: null,
-      bathrooms: null,
+      beds: null,
+      baths: null,
       category: '',
-      type: ''
+      for_type: ''
     },
     resolver: yupResolver(schema)
   })
 
+  const { data: getData } = useQuery({
+    queryKey: ['property', id],
+    select: d => d?.data?.data,
+    queryFn: () => Axios.get(`backend/property/${id}`),
+    enabled: mode === 'edit'
+  })
+  // const router = useRouter()
+  // console.log('router', router)
+  console.log(getData, 'getData')
+
   useEffect(() => {
-    if (data && (mode === 'edit' || mode === 'view')) {
-      setValue('name', data.name || '')
-      setValue('location', data.location || '')
-      setValue('price', data.price || 0)
-      setValue('monthlyPrice', data.monthlyPrice || 0)
-      setValue('area', data.area || 0)
-      setValue('bedrooms', data.bedrooms || 0)
-      setValue('bathrooms', data.bathrooms || 0)
-      setValue('category', data.category || '')
-      setValue('type', data.type || '')
-      setValue('furnishingStatus', data.furnishingStatus || '')
-      setValue('purpose', data.purpose || '')
-      setCenter({ lat: data.latitude, lng: data.longitude })
-      setMarker({ lat: data.latitude, lng: data.longitude })
-    } else {
-      reset()
-      setCenter({ lat: 23.0225, lng: 72.5714 })
-      setMarker({ lat: 23.0225, lng: 72.5714 })
+    if (getData && mode === 'edit') {
+      console.log('enter', getData.name)
+      setValue('name', getData.name || '')
+      setValue('location', getData.location || '')
+      setSearchInput(getData.location)
+      setValue('price', getData.price || 0)
+      setValue('monthly_price', getData.monthly_price || 0)
+      setValue('area', getData.area || 0)
+      setValue('beds', getData.beds || 0)
+      setValue('baths', getData.baths || 0)
+      setValue('category', getData.category._id || '')
+      setValue('for_type', getData.for_type || '')
+      setValue('description', getData.description)
+      setImages(getData.images)
+      setCenter({ lat: Number(getData.latitude), lng: Number(getData.longitude) })
+      setMarker({ lat: Number(getData.latitude), lng: Number(getData.longitude) })
     }
-  }, [data, mode, setValue, reset])
+  }, [getData, mode, setValue, reset])
+
+  console.log('marker', marker)
 
   const { mutate: addProperty } = useMutation({
     mutationFn: data => Axios.post('backend/property', data),
@@ -111,7 +102,7 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
   })
 
   const { mutate: editProperty } = useMutation({
-    mutationFn: d => Axios.put(`backend/property/${data.id}`, d),
+    mutationFn: d => Axios.put(`backend/property/${id}`, d),
     onSuccess: () => {
       toast.success('Property updated successfully')
       refetch()
@@ -127,8 +118,11 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
     const propertyData = {
       ...formData,
       images: images,
-      latitude: marker?.lat,
-      longitude: marker?.lng
+      location: searchInput,
+      ratings: 'ss',
+      reviews: 4,
+      latitude: (marker?.lat).toString(),
+      longitude: (marker?.lng).toString()
     }
     console.log(propertyData, 'propertyData')
     if (mode === 'edit') {
@@ -182,6 +176,8 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
   const onPlaceChanged = () => {
     if (autocomplete !== null) {
       const place = autocomplete.getPlace()
+      console.log('place', place)
+      setSearchInput(place.formatted_address)
       setCenter({
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng()
@@ -198,6 +194,8 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
   const handleSearchInputChange = e => {
     setSearchInput(e.target.value)
   }
+
+  console.log('errors', errors)
   return (
     <>
       <Typography variant='h5' p={2} mb={2}>
@@ -224,17 +222,22 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
 
           <Box mt={4}>
             <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={['places']}>
-              {/* Your component JSX */}
               <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
-                <input
-                  type='text'
+                <CustomTextField
+                  fullWidth
                   value={searchInput}
                   onChange={handleSearchInputChange}
-                  placeholder='Search location'
+                  placeholder={'Search Location'}
+                  type='text'
+                  InputProps={{
+                    style: {
+                      marginBottom: '10px'
+                    }
+                  }}
                 />
               </Autocomplete>
               <GoogleMap
-                mapContainerStyle={{ height: '300px', width: '100%' }}
+                mapContainerStyle={{ height: '500px', width: '100%' }}
                 center={center}
                 zoom={12}
                 onClick={handleMapClick}
@@ -265,7 +268,7 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
             </Grid>
             <Grid item xs={12} md={6}>
               <Controller
-                name='monthlyPrice'
+                name='monthly_price'
                 control={control}
                 render={({ field }) => (
                   <CustomTextField
@@ -274,8 +277,8 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
                     placeholder='Enter Monthly Price'
                     {...field}
                     disabled={mode === 'view'}
-                    error={!!errors.monthlyPrice}
-                    helperText={errors.monthlyPrice?.message}
+                    error={!!errors.monthly_price}
+                    helperText={errors.monthly_price?.message}
                   />
                 )}
               />
@@ -289,7 +292,7 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
                 render={({ field }) => (
                   <CustomTextField
                     fullWidth
-                    type='number'
+                    type='text'
                     placeholder='Enter Area'
                     {...field}
                     disabled={mode === 'view'}
@@ -301,7 +304,7 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
             </Grid>
             <Grid item xs={12} md={6}>
               <Controller
-                name='bedrooms'
+                name='beds'
                 control={control}
                 render={({ field }) => (
                   <CustomTextField
@@ -310,8 +313,8 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
                     placeholder='Enter Bedrooms'
                     {...field}
                     disabled={mode === 'view'}
-                    error={!!errors.bedrooms}
-                    helperText={errors.bedrooms?.message}
+                    error={!!errors.beds}
+                    helperText={errors.beds?.message}
                   />
                 )}
               />
@@ -319,7 +322,7 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
           </Grid>
 
           <Controller
-            name='bathrooms'
+            name='baths'
             control={control}
             render={({ field }) => (
               <CustomTextField
@@ -329,8 +332,8 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
                 placeholder='Enter Bathrooms'
                 {...field}
                 disabled={mode === 'view'}
-                error={!!errors.bathrooms}
-                helperText={errors.bathrooms?.message}
+                error={!!errors.baths}
+                helperText={errors.baths?.message}
               />
             )}
           />
@@ -339,21 +342,21 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
             {/* Type Select */}
             <Grid item xs={12} md={6}>
               <Controller
-                name='type'
+                name='for_type'
                 control={control}
                 render={({ field }) => (
-                  <Select fullWidth displayEmpty {...field} disabled={mode === 'view'} error={!!errors.type}>
+                  <Select fullWidth displayEmpty {...field} disabled={mode === 'view'} error={!!errors.for_type}>
                     <MenuItem value='' disabled>
                       Select Type
                     </MenuItem>
                     <MenuItem value='rent'>Rent</MenuItem>
-                    <MenuItem value='sell'>Sell</MenuItem>
+                    <MenuItem value='sale'>Sell</MenuItem>
                   </Select>
                 )}
               />
-              {errors.type && (
+              {errors.for_type && (
                 <Typography variant='body2' color='error'>
-                  {errors.type?.message}
+                  {errors.for_type?.message}
                 </Typography>
               )}
             </Grid>
@@ -369,7 +372,7 @@ const AddProperty = ({ refetch, open, toggle, data, mode }) => {
                       Select Category
                     </MenuItem>
                     {categories?.data?.data?.map(category => (
-                      <MenuItem key={category.id} value={category.name}>
+                      <MenuItem key={category.id} value={category._id}>
                         {category.name}
                       </MenuItem>
                     ))}

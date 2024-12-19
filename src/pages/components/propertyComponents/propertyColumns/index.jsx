@@ -8,10 +8,12 @@ import { Box, IconButton, Menu, MenuItem, Typography } from '@mui/material'
 import Axios from 'src/Axios'
 import Icon from 'src/@core/components/icon'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 
 const RowOptions = ({ id, refetch, handleCRUD }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const rowOptionsOpen = Boolean(anchorEl)
+  const router = useRouter()
 
   const { mutate: deleteCustomer } = useMutation({
     mutationFn: id => Axios.delete(`backend/review/${id}`),
@@ -58,11 +60,7 @@ const RowOptions = ({ id, refetch, handleCRUD }) => {
         }}
         PaperProps={{ style: { minWidth: '8rem' } }}
       >
-        <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => handleEdit('view')}>
-          <Icon icon='tabler:eye' fontSize={20} />
-          View
-        </MenuItem>
-        <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => handleEdit('edit')}>
+        <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => router.push(`/properties/edit/${id}`)}>
           <Icon icon='tabler:edit' fontSize={20} />
           Edit
         </MenuItem>
@@ -100,48 +98,85 @@ export default function PropertyColumn(refetch, handleCRUD) {
         )
       }
     },
+    {
+      flex: 0.15,
+      minWidth: 120,
+      sortable: false,
+      headerName: 'CATEGORY',
+      field: 'category.name',
+      renderCell: ({ row }) => {
+        console.log(row.category, 'row category')
+        return (
+          <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
+            {row?.category?.name || 'N/A'}
+          </Typography>
+        )
+      }
+    },
+    {
+      flex: 0.15,
+      minWidth: 120,
+      sortable: false,
+      headerName: 'FOR TYPE',
+      field: 'for_type',
+      renderCell: ({ row }) => {
+        return (
+          <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
+            {row.for_type || '-'}
+          </Typography>
+        )
+      }
+    },
+    {
+      flex: 0.15,
+      minWidth: 120,
+      sortable: false,
+      headerName: 'PRICE',
+      field: 'price',
+      renderCell: ({ row }) => {
+        // Format the price with rupee symbol and commas
+        const formattedPrice = row?.price ? `₹ ${row.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}` : '—'
+        return <div>{formattedPrice}</div>
+      }
+    },
+    {
+      flex: 0.15,
+      minWidth: 120,
+      sortable: false,
+      headerName: 'LOCATION',
+      field: 'location',
+      renderCell: ({ row }) => {
+        return <div>{row?.location}</div>
+      }
+    },
     // {
     //   flex: 0.15,
     //   minWidth: 120,
     //   sortable: false,
-    //   headerName: 'CATEGORY',
-    //   field: 'name',
+    //   headerName: 'AREA',
+    //   field: 'area',
     //   renderCell: ({ row }) => {
     //     return (
     //       <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-    //         {row?.name || '-'}
+    //         {row?.area || 'N/A'}
     //       </Typography>
     //     )
     //   }
     // },
-    // {
-    //   flex: 0.15,
-    //   minWidth: 120,
-    //   sortable: false,
-    //   headerName: 'NAME',
-    //   field: 'reviews',
-    //   renderCell: ({ row }) => {
-    //     return (
-    //       <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-    //         {row.reviews || '-'}
-    //       </Typography>
-    //     )
-    //   }
-    // },
-    // {
-    //   flex: 0.15,
-    //   minWidth: 120,
-    //   sortable: false,
-    //   headerName: 'STARS',
-    //   field: 'stars',
-    //   renderCell: ({ row }) => {
-    //     return (
-    //       <div>
-    //         {[...Array(5)].map((_, index) => (index < row.stars ? <Star key={index} /> : <StarBorder key={index} />))}
-    //       </div>
-    //     )
-    //   }
-    // },
+    {
+      flex: 0.15,
+      minWidth: 120,
+      sortable: false,
+      headerName: 'AREA',
+      field: 'area',
+      renderCell: ({ row }) => {
+        return (
+          <div>
+            {row?.ratings} <StarBorder className='mt-2' />
+          </div>
+        )
+      }
+    },
 
     {
       flex: 0.1,
