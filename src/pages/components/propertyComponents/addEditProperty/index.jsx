@@ -1,4 +1,4 @@
-import { Box, Button, Typography, Select, MenuItem, InputLabel, IconButton, Grid, TextField } from '@mui/material'
+import { Box, Button, Typography, Select, MenuItem, IconButton, Grid, TextField } from '@mui/material'
 import { GoogleMap, Marker, Autocomplete, LoadScript } from '@react-google-maps/api'
 import React, { useState, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -7,11 +7,13 @@ import * as yup from 'yup'
 import toast from 'react-hot-toast'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import Axios from 'src/Axios'
+import Icon from 'src/@core/components/icon'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import UseBgColor from 'src/@core/hooks/useBgColor'
 import { Remove } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
-// import { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
+// import { defaultValueProperty, propertySchema } from './propertySchema'
 
 const GOOGLE_MAPS_API_KEY = 'AIzaSyAyp3zTF3CykyPGiQv5FzY3-kKWZnYbq08 '
 
@@ -23,16 +25,24 @@ const schema = yup.object().shape({
   beds: yup.number().positive().integer().required('Bedrooms is required'),
   baths: yup.number().positive().integer().required('Bathrooms is required'),
   category: yup.string().required('Category is required'),
-  for_type: yup.string().required('Property type is required')
+  for_type: yup.string().required('Property type is required'),
+  ratings: yup.string().required('ratings is required'),
+  reviews: yup
+    .number()
+    .required('reviews are required')
+    .min(0, 'reviews must be at least 0')
+    .max(5, 'reviews cannot exceed 5')
 })
 
-const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
+const AddProperty = ({ mode, id }) => {
+  const bgColors = UseBgColor()
+  const theme = useTheme()
   const [center, setCenter] = useState({ lat: 23.0225, lng: 72.5714 })
   const [marker, setMarker] = useState({ lat: 23.0225, lng: 72.5714 })
-  const bgColors = UseBgColor()
+  const [autocomplete, setAutocomplete] = useState(null)
   const [images, setImages] = useState([''])
-  const theme = useTheme()
   const [searchInput, setSearchInput] = useState('')
+  const router = useRouter()
 
   const {
     reset,
@@ -51,7 +61,10 @@ const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
       beds: null,
       baths: null,
       category: '',
-      for_type: ''
+      for_type: '',
+      description: '',
+      ratings: '',
+      reviews: 0
     },
     resolver: yupResolver(schema)
   })
@@ -62,13 +75,9 @@ const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
     queryFn: () => Axios.get(`backend/property/${id}`),
     enabled: mode === 'edit'
   })
-  // const router = useRouter()
-  // console.log('router', router)
-  console.log(getData, 'getData')
 
   useEffect(() => {
     if (getData && mode === 'edit') {
-      console.log('enter', getData.name)
       setValue('name', getData.name || '')
       setValue('location', getData.location || '')
       setSearchInput(getData.location)
@@ -80,51 +89,52 @@ const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
       setValue('category', getData.category._id || '')
       setValue('for_type', getData.for_type || '')
       setValue('description', getData.description)
+      setValue('ratings', getData.ratings || '')
+      setValue('reviews', getData.reviews || '')
       setImages(getData.images)
       setCenter({ lat: Number(getData.latitude), lng: Number(getData.longitude) })
       setMarker({ lat: Number(getData.latitude), lng: Number(getData.longitude) })
     }
   }, [getData, mode, setValue, reset])
 
-  console.log('marker', marker)
-
+  // !Add Property API
   const { mutate: addProperty } = useMutation({
     mutationFn: data => Axios.post('backend/property', data),
     onSuccess: () => {
       toast.success('Property added successfully')
-      refetch()
-      reset()
-      handleToggle()
+      router.push('/properties')
     },
     onError: err => {
       console.log('err', err)
     }
   })
 
+  // !Edit Property API
   const { mutate: editProperty } = useMutation({
     mutationFn: d => Axios.put(`backend/property/${id}`, d),
     onSuccess: () => {
       toast.success('Property updated successfully')
-      refetch()
-      reset()
-      handleToggle()
+      router.push('/properties')
     },
     onError: err => {
       console.log('err', err)
     }
   })
 
+  // !Get Categories API
+  const { data: categories } = useQuery({
+    queryFn: () => Axios.get('backend/category?q')
+  })
+
+  // !Data Submit
   const onSubmit = formData => {
     const propertyData = {
       ...formData,
       images: images,
       location: searchInput,
-      ratings: 'ss',
-      reviews: 4,
       latitude: (marker?.lat).toString(),
       longitude: (marker?.lng).toString()
     }
-    console.log(propertyData, 'propertyData')
     if (mode === 'edit') {
       editProperty(propertyData)
     } else {
@@ -132,16 +142,13 @@ const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
     }
   }
 
+  // !Set Map location
   const handleMapClick = event => {
     setMarker({ lat: event.latLng.lat(), lng: event.latLng.lng() })
     setValue('location', `${event.latLng.lat()}, ${event.latLng.lng()}`)
   }
 
-  function handleToggle() {
-    clearErrors()
-    toggle()
-  }
-
+  // !Image Upload
   const handleImageUpload = (index, event) => {
     const file = event.target.files[0]
     const reader = new FileReader()
@@ -154,21 +161,18 @@ const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
     reader.readAsDataURL(file)
   }
 
+  // !Add Image
   const handleAddImage = () => {
     setImages([...images, ''])
   }
 
+  // !Remove Image
   const handleRemoveImage = index => {
     const newImages = images.filter((_, i) => i !== index)
     setImages(newImages)
   }
 
-  const { data: categories } = useQuery({
-    queryFn: () => Axios.get('backend/category?q')
-  })
-
-  const [autocomplete, setAutocomplete] = useState(null)
-
+  // !Google Map Search
   const onLoad = autoCompleteInstance => {
     setAutocomplete(autoCompleteInstance)
   }
@@ -176,7 +180,6 @@ const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
   const onPlaceChanged = () => {
     if (autocomplete !== null) {
       const place = autocomplete.getPlace()
-      console.log('place', place)
       setSearchInput(place.formatted_address)
       setCenter({
         lat: place.geometry.location.lat(),
@@ -195,7 +198,6 @@ const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
     setSearchInput(e.target.value)
   }
 
-  console.log('errors', errors)
   return (
     <>
       <Typography variant='h5' p={2} mb={2}>
@@ -319,24 +321,44 @@ const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
                 )}
               />
             </Grid>
-          </Grid>
 
-          <Controller
-            name='baths'
-            control={control}
-            render={({ field }) => (
-              <CustomTextField
-                fullWidth
-                type='number'
-                style={{ marginTop: '5px', marginBottom: '5px' }}
-                placeholder='Enter Bathrooms'
-                {...field}
-                disabled={mode === 'view'}
-                error={!!errors.baths}
-                helperText={errors.baths?.message}
+            {/* third row */}
+            <Grid item xs={12} md={6}>
+              <Controller
+                name='baths'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField
+                    fullWidth
+                    type='number'
+                    style={{ marginTop: '5px', marginBottom: '5px' }}
+                    placeholder='Enter Bathrooms'
+                    {...field}
+                    disabled={mode === 'view'}
+                    error={!!errors.baths}
+                    helperText={errors.baths?.message}
+                  />
+                )}
               />
-            )}
-          />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Controller
+                name='reviews'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField
+                    fullWidth
+                    type='number'
+                    placeholder='Enter Reviews (0-5)'
+                    {...field}
+                    disabled={mode === 'reviews'}
+                    error={!!errors.reviews}
+                    helperText={errors.reviews?.message}
+                  />
+                )}
+              />
+            </Grid>
+          </Grid>
 
           <Grid container spacing={2}>
             {/* Type Select */}
@@ -405,9 +427,29 @@ const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
                 )}
               />
             </Grid>
+
+            {/* ratings Field */}
+            <Grid item xs={12}>
+              <Controller
+                name='ratings'
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={4}
+                    placeholder='Enter Ratings'
+                    {...field}
+                    disabled={mode === 'view'}
+                    error={!!errors.ratings}
+                    helperText={errors.ratings?.message}
+                  />
+                )}
+              />
+            </Grid>
           </Grid>
 
-          {images.map((image, index) => (
+          {images?.map((image, index) => (
             <Box
               key={index}
               sx={{
@@ -447,17 +489,22 @@ const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
                   <Remove />
                 </IconButton>
               )}
-              <img
-                src={image}
-                alt='Preview'
-                style={{
-                  width: '100px',
-                  height: '100px',
-                  objectFit: 'cover',
-                  borderRadius: '8px',
-                  marginBottom: '8px'
-                }}
-              />
+
+              {image ? (
+                <img
+                  src={image}
+                  alt='Preview'
+                  style={{
+                    width: '100px',
+                    height: '100px',
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                    marginBottom: '8px'
+                  }}
+                />
+              ) : (
+                <Icon icon='tabler:file-upload' />
+              )}
               <Typography variant='body2' sx={{ color: theme.palette.primary.main }}>
                 {mode === 'view' ? 'No file upload allowed in view mode' : 'Drop files here or click to upload.'}
               </Typography>
@@ -475,7 +522,7 @@ const AddProperty = ({ refetch, open, toggle, data, mode, id }) => {
               <Button type='submit' variant='contained' color='primary'>
                 {mode === 'edit' ? 'Update' : 'Submit'}
               </Button>
-              <Button variant='outlined' color='secondary' onClick={handleToggle}>
+              <Button variant='outlined' color='secondary' onClick={() => router.push('/properties')}>
                 Cancel
               </Button>
             </Box>

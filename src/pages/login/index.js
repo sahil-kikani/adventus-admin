@@ -1,13 +1,8 @@
-// ** React Imports
-import { useState } from 'react'
-
-// ** Next Imports
+import * as yup from 'yup'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-
-// ** MUI Components
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
 import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
@@ -17,29 +12,19 @@ import { styled, useTheme } from '@mui/material/styles'
 import InputAdornment from '@mui/material/InputAdornment'
 import MuiFormControlLabel from '@mui/material/FormControlLabel'
 
-// ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
 
-// ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-// ** Third Party Imports
-import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-
-// ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
 import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
 
-// ** Configs
 import themeConfig from 'src/configs/themeConfig'
 
-// ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
-// ** Demo Imports
 import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
 import Image from 'next/image'
 
@@ -48,7 +33,6 @@ import Axios from 'src/Axios'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 
-// ** Styled Components
 const LoginIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,
   maxHeight: 680,
@@ -75,11 +59,6 @@ const RightWrapper = styled(Box)(({ theme }) => ({
   }
 }))
 
-const LinkStyled = styled(Link)(({ theme }) => ({
-  textDecoration: 'none',
-  color: `${theme.palette.primary.main} !important`
-}))
-
 const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
   '& .MuiFormControlLabel-label': {
     color: theme.palette.text.secondary
@@ -100,8 +79,6 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
 
-  // ** Hooks
-  const auth = useAuth()
   const router = useRouter()
   const returnUrl = router.query.returnUrl
   const theme = useTheme()
@@ -109,7 +86,6 @@ const LoginPage = () => {
   const { settings } = useSettings()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
-  // ** Vars
   const { skin } = settings
 
   const {
@@ -150,6 +126,15 @@ const LoginPage = () => {
   const onSubmit = data => {
     LoginAPi(data)
   }
+
+  useEffect(() => {
+    if (window !== 'undefined') {
+      const token = localStorage.getItem('accessToken')
+      if (token) {
+        router.push('/')
+      } else return null
+    }
+  }, [])
 
   const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
 

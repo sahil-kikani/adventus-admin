@@ -1,7 +1,7 @@
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import { DataGrid } from '@mui/x-data-grid'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import Axios from 'src/Axios'
@@ -12,15 +12,22 @@ const Customers = () => {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
   const [value, setValue] = useState('')
 
+  const debounceTimeout = useRef(null)
+
+  const handleFilter = useCallback(val => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+    debounceTimeout.current = setTimeout(() => {
+      setValue(val)
+    }, 1000)
+  }, [])
+
   const { data, refetch } = useQuery({
-    queryKey: ['get-customers'],
-    queryFn: () => Axios.get(`/backend/customer?q`),
+    queryKey: ['get-customers', value],
+    queryFn: () => Axios.get(value === '' ? `backend/customer?q` : `backend/customer?search=${value}`),
     select: d => d?.data?.data
   })
-
-  const handleSearch = useCallback(val => {
-    setValue(val)
-  }, [])
 
   const mappedData = data?.map(row => ({ ...row, id: row._id })) || []
   return (
@@ -29,7 +36,7 @@ const Customers = () => {
         <Card>
           <TableHeader
             value={value}
-            handleFilter={handleSearch}
+            handleFilter={handleFilter}
             title={'Customer List'}
             searchTitle={'Search Customer'}
           />

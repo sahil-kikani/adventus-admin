@@ -7,7 +7,6 @@ const Axios = axios.create({
 Axios.interceptors.request.use(req => {
   if (typeof window !== 'undefined') {
     const token = localStorage?.getItem('accessToken')
-    console.log('token', token)
     if (!req.headers.Authorization && token) {
       req.headers.Authorization = `Bearer ${token}`
     }

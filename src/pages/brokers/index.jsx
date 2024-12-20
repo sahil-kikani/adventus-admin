@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
-import { useState, useCallback } from 'react'
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
+import { useQuery } from '@tanstack/react-query'
+import { useState, useCallback, useRef } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 
 import TableHeader from 'src/views/apps/user/list/TableHeader'
@@ -12,13 +12,20 @@ const Brokers = () => {
   const [value, setValue] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
+  const debounceTimeout = useRef(null)
+
   const handleFilter = useCallback(val => {
-    setValue(val)
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+    debounceTimeout.current = setTimeout(() => {
+      setValue(val)
+    }, 1000)
   }, [])
 
   const { data, refetch } = useQuery({
-    queryKey: ['get-brokers'],
-    queryFn: () => Axios.get(`backend/broker?q`),
+    queryKey: ['get-brokers', value],
+    queryFn: () => Axios.get(value === '' ? `backend/broker?q` : `backend/broker?search=${value}`),
     select: d => d?.data?.data
   })
 

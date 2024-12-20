@@ -78,8 +78,6 @@ const VerticalNavLink = ({
   // ** Hooks
   const router = useRouter()
 
-  console.log('items in nav', item)
-
   // ** Vars
   const { navCollapsed } = settings
   const icon = parent && !item.icon ? themeConfig.navSubItemIcon : item.icon

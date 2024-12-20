@@ -10,16 +10,16 @@ import Icon from 'src/@core/components/icon'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 
-const RowOptions = ({ id, refetch, handleCRUD }) => {
+const RowOptions = ({ id, refetch }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const rowOptionsOpen = Boolean(anchorEl)
   const router = useRouter()
 
-  const { mutate: deleteCustomer } = useMutation({
-    mutationFn: id => Axios.delete(`backend/review/${id}`),
+  const { mutate: deleteProperty } = useMutation({
+    mutationFn: id => Axios.delete(`backend/property/${id}`),
     onSuccess: () => {
       setAnchorEl(null)
-      toast.success('review deleted successfully')
+      toast.success('Property deleted successfully')
       refetch()
     },
     onError: err => {
@@ -32,12 +32,7 @@ const RowOptions = ({ id, refetch, handleCRUD }) => {
   }
 
   const handleDelete = () => {
-    deleteCustomer(id)
-  }
-
-  const handleEdit = type => {
-    setAnchorEl(false)
-    handleCRUD(type, id)
+    deleteProperty(id)
   }
 
   return (
@@ -73,7 +68,7 @@ const RowOptions = ({ id, refetch, handleCRUD }) => {
   )
 }
 
-export default function PropertyColumn(refetch, handleCRUD) {
+export default function PropertyColumn(refetch) {
   return [
     {
       flex: 0.15,
@@ -105,7 +100,6 @@ export default function PropertyColumn(refetch, handleCRUD) {
       headerName: 'CATEGORY',
       field: 'category.name',
       renderCell: ({ row }) => {
-        console.log(row.category, 'row category')
         return (
           <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
             {row?.category?.name || 'N/A'}
@@ -184,7 +178,7 @@ export default function PropertyColumn(refetch, handleCRUD) {
       sortable: false,
       field: 'actions',
       headerName: 'Actions',
-      renderCell: ({ row }) => <RowOptions id={row.id} refetch={refetch} handleCRUD={handleCRUD} />
+      renderCell: ({ row }) => <RowOptions id={row.id} refetch={refetch} />
     }
   ]
 }

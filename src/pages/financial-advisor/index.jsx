@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import { DataGrid } from '@mui/x-data-grid'
@@ -12,13 +12,21 @@ const FinancialAdvisor = () => {
   const [value, setValue] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
+  const debounceTimeout = useRef(null)
+
   const handleFilter = useCallback(val => {
-    setValue(val)
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+    debounceTimeout.current = setTimeout(() => {
+      setValue(val)
+    }, 1000)
   }, [])
 
   const { data, refetch } = useQuery({
-    queryKey: ['get-financial-advisor'],
-    queryFn: () => Axios.get(`backend/financial-advisor?q`),
+    queryKey: ['get-financial-advisor', value],
+    queryFn: () =>
+      Axios.get(value === '' ? `backend/financial-advisor?q` : `backend/financial-advisor?search=${value}`),
     select: d => d?.data?.data
   })
 

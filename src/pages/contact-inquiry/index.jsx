@@ -1,7 +1,7 @@
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import { DataGrid } from '@mui/x-data-grid'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import Axios from 'src/Axios'
@@ -12,13 +12,20 @@ const ContactInquiry = () => {
   const [value, setValue] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
+  const debounceTimeout = useRef(null)
+
   const handleFilter = useCallback(val => {
-    setValue(val)
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+    debounceTimeout.current = setTimeout(() => {
+      setValue(val)
+    }, 1000)
   }, [])
 
   const { data, refetch } = useQuery({
-    queryKey: ['get-contact-inquiry'],
-    queryFn: () => Axios.get(`backend/contact-inquiry?q`),
+    queryKey: ['get-contact-inquiry', value],
+    queryFn: () => Axios.get(value === '' ? `backend/contact-inquiry?q` : `backend/contact-inquiry?search=${value}`),
     select: d => d?.data?.data
   })
 

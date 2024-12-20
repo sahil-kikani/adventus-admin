@@ -1,10 +1,5 @@
-// ** React Imports
 import { useState, Fragment } from 'react'
-
-// ** Next Import
 import { useRouter } from 'next/router'
-
-// ** MUI Imports
 import Box from '@mui/material/Box'
 import Menu from '@mui/material/Menu'
 import Badge from '@mui/material/Badge'
@@ -13,14 +8,8 @@ import Divider from '@mui/material/Divider'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
-
-// ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-// ** Context
-import { useAuth } from 'src/hooks/useAuth'
-
-// ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({
   width: 8,
   height: 8,
@@ -36,17 +25,12 @@ const MenuItemStyled = styled(MenuItem)(({ theme }) => ({
 }))
 
 const UserDropdown = props => {
-  // ** Props
   const { settings } = props
 
-  // ** States
   const [anchorEl, setAnchorEl] = useState(null)
 
-  // ** Hooks
   const router = useRouter()
-  const { logout } = useAuth()
 
-  // ** Vars
   const { direction } = settings
 
   const handleDropdownOpen = event => {
@@ -75,13 +59,23 @@ const UserDropdown = props => {
     }
   }
 
+  // const { mutate: logOut } = useMutation({
+  //   mutationFn: d => Axios.put(`backend/logout/`, d),
+  //   onSuccess: () => {
+  //     toast.success('Property updated successfully')
+  //     router.push('/properties')
+  //   },
+  //   onError: err => {
+  //     console.log('err', err)
+  //   }
+  // })
+
   const handleLogout = () => {
-    logout()
+    localStorage.removeItem('accessToken')
+    router.push('/login')
     handleDropdownClose()
   }
 
-  // const userData = window !== 'undefined' ? localStorage.getItem('userData') : {}
-  // console.log(userData?.name)
   return (
     <Fragment>
       <Badge
